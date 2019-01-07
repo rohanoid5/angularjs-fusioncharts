@@ -45,7 +45,8 @@
       map: '@',
       markers: '@',
       initialized: '&',
-      datasourceDt: '=datasourceDt'
+      datasourceDt: '=datasourceDt',
+      datasource: '=datasource'
     },
     fcEvents = [
       'beforelinkeditemopen',
@@ -249,27 +250,27 @@
                     }
                   }
                 },
-                datasource: {
-                  ifExist: true,
-                  observer: function(newVal) {
-                    if (dataStringStore.dataSource != newVal) {
-                      dataStringStore.dataSource = newVal;
-                      if (chartConfigObject.dataFormat === 'json') {
-                        chartConfigObject.dataSource = JSON.parse(newVal);
-                        setChartData();
-                      } else {
-                        chartConfigObject.dataSource = newVal;
-                        if (chartConfigObject.dataFormat === 'xml') {
-                          chart.setXMLData(newVal);
-                        } else if (chartConfigObject.dataFormat === 'jsonurl') {
-                          chart.setJSONUrl(newVal);
-                        } else if (chartConfigObject.dataFormat === 'xmlurl') {
-                          chart.setXMLUrl(newVal);
-                        }
-                      }
-                    }
-                  }
-                },
+                // datasource: {
+                //   ifExist: true,
+                //   observer: function(newVal) {
+                //     if (dataStringStore.dataSource != newVal) {
+                //       dataStringStore.dataSource = newVal;
+                //       if (chartConfigObject.dataFormat === 'json') {
+                //         chartConfigObject.dataSource = JSON.parse(newVal);
+                //         setChartData();
+                //       } else {
+                //         chartConfigObject.dataSource = newVal;
+                //         if (chartConfigObject.dataFormat === 'xml') {
+                //           chart.setXMLData(newVal);
+                //         } else if (chartConfigObject.dataFormat === 'jsonurl') {
+                //           chart.setJSONUrl(newVal);
+                //         } else if (chartConfigObject.dataFormat === 'xmlurl') {
+                //           chart.setXMLUrl(newVal);
+                //         }
+                //       }
+                //     }
+                //   }
+                // },
                 type: {
                   ifExist: false,
                   observer: function(newVal) {
@@ -715,12 +716,30 @@
             }
           }
 
-          if (attrs.datasource) {
-            chartConfigObject.dataSource =
-              chartConfigObject.dataFormat === 'json'
-                ? JSON.parse(attrs.datasource)
-                : attrs.datasource;
+          // if (attrs.datasource) {
+          //   chartConfigObject.dataSource =
+          //     chartConfigObject.dataFormat === 'json'
+          //       ? JSON.parse(attrs.datasource)
+          //       : attrs.datasource;
+          //   dataStringStore.dataSource = attrs.datasource;
+          // }
+
+          if (scope.datasource) {
+            attrs.datasource = scope.datasource;
+            chartConfigObject.dataSource = scope.datasource;
             dataStringStore.dataSource = attrs.datasource;
+
+            scope.$watch(
+              'datasource',
+              function(newData, oldData) {
+                if (newData !== oldData) {
+                  chartConfigObject.dataSource = scope.datasource;
+                  dataStringStore.dataSource = scope.datasource;
+                  setChartData();
+                }
+              },
+              true
+            );
           }
 
           for (observableAttr in observeConf.DCObserver) {
